@@ -6,8 +6,22 @@ const PRS_URL = `https://api.github.com/repos/rackerlabs/billing-ui/pulls?access
 const humanizeDuration = require('humanize-duration');
 const hdOptions = { largest: 1 };
 
-// (Exported) Using the given response object, call GitHub API to get all pull requests
-function prStatus(res) {
+var ignoredPRs = [];
+
+// Remove all PRs from ignore list
+function clearIgnores() {
+  ignoredPRs = [];
+}
+
+// Given a PR number, add that number to the list of PRs to ignore in the future
+function ignore(pr) {
+  if (!ignoredPRs.includes(pr)) {
+    ignoredPRs.push(parseInt(pr, 10));
+  }
+}
+
+// Using the given response object, call GitHub API to get all pull requests
+function status(res) {
   return new Promise((resolve, reject) => {
     res.http(PRS_URL)
       .header('Accept', 'application/vnd.github.v3+json')
@@ -22,6 +36,9 @@ function formatOpenPRStatus(prs) {
   if (!Array.isArray(prs)) {
     return 'Whelp...I reckon something went wrong when I tried to fetch that  *PR STATUS* for ya.';
   }
+
+  // Filter out ignored PRs
+  prs = prs.filter(pr => !ignoredPRs.includes(pr.number))
 
   let msg;
 
@@ -53,4 +70,8 @@ function formatPR(pr) {
   return `(<${pr.html_url}|${pr.number}>) ${pr.title}  --  _${duration}_\n`;
 }
 
-module.exports = prStatus;
+module.exports = {
+  clearIgnores: clearIgnores,
+  ignore: ignore,
+  status: status
+};
