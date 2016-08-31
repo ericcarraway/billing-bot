@@ -47,10 +47,10 @@ function formatOpenPRStatus(prs) {
       return `Good news, yall! There aren't any open PRs right now!\n`;
       break;
     case (prs.length === 1):
-      msg = 'Looks like there is one lonesome open PR what needs some attention:';
+      msg = 'Looks like there is one lonesome open PR that needs some attention:';
       break;
     case (prs.length > 1):
-      msg = `Looks like there are ${prs.length} open PRs what need some attention:`;
+      msg = `Looks like there are ${prs.length} open PRs that need some attention:`;
       break;
   }
 
