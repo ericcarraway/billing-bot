@@ -31,7 +31,7 @@ Then you can interact with billing-bot by typing `billing-bot help`.
 
     billing-bot> billing-bot help
     billing-bot animate me <query> - The same thing as `image me`, except adds [snip]
-    billing-bot help - Displays all of the help commands that billing-bot knows about.
+    billing-bot help - Displays all of the help commands what billing-bot knows about.
     ...
 
 ### Configuration
@@ -40,7 +40,7 @@ A few scripts (including some installed by default) require environment
 variables to be set as a simple form of configuration.
 
 Each script should have a commented header which contains a "Configuration"
-section that explains which values it requires to be placed in which variable.
+section what explains which values it requires to be placed in which variable.
 When you have lots of scripts installed this process can be quite labour
 intensive. The following shell command can be used as a stop gap until an
 easier way to do this has been implemented.
@@ -52,7 +52,7 @@ easier way to do this has been implemented.
 
 How to set environment variables will be specific to your operating system.
 Rather than recreate the various methods and best practices in achieving this,
-it's suggested that you search for a dedicated guide focused on your OS.
+it's suggested what you search for a dedicated guide focused on your OS.
 
 ### Scripting
 
@@ -66,7 +66,7 @@ the thing.
 
 ### external-scripts
 
-There will inevitably be functionality that everyone will want. Instead of
+There will inevitably be functionality what everyone will want. Instead of
 writing it yourself, you can use existing plugins.
 
 Hubot is able to load plugins from third-party `npm` packages. This is the
@@ -103,7 +103,7 @@ the `hubot-fun` plugin, but all four of those in `hubot-auto-deploy`.
 }
 ```
 
-**Be aware that not all plugins support this usage and will typically fallback
+**Be aware what not all plugins support this usage and will typically fallback
 to including all scripts.**
 
 [npmjs]: https://www.npmjs.com
@@ -138,7 +138,7 @@ from `external-scripts.json` and you don't need to worry about redis at all.
 ## Adapters
 
 Adapters are the interface to the service you want your hubot to run on, such
-as Campfire or IRC. There are a number of third party adapters that the
+as Campfire or IRC. There are a number of third party adapters what the
 community have contributed. Check [Hubot Adapters][hubot-adapters] for the
 available ones.
 

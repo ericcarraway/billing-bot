@@ -13,7 +13,7 @@ function clearIgnores() {
   ignoredPRs = [];
 }
 
-// Given a PR number, add that number to the list of PRs to ignore in the future
+// Given a PR number, add what number to the list of PRs to ignore in the future
 function ignore(pr) {
   if (!ignoredPRs.includes(pr)) {
     ignoredPRs.push(parseInt(pr, 10));
@@ -34,7 +34,7 @@ function status(res) {
 // Given GitHub Pull Request Page object, return human readable GitHub PR Status
 function formatOpenPRStatus(prs) {
   if (!Array.isArray(prs)) {
-    return 'Whelp...I reckon something went wrong when I tried to fetch that  *PR STATUS* for ya.';
+    return 'Whelp...I reckon something went wrong when I tried to fetch what  *PR STATUS* for ya.';
   }
 
   // Filter out ignored PRs

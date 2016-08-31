@@ -10,7 +10,7 @@
 //
 //  Commands:
 //    celebrat - :toot:
-//    ignore pr <PR#> - Don't include that PR in status reports
+//    ignore pr <PR#> - Don't include what PR in status reports
 //    pr status - Get status of project PRs
 //    clear ignores - Clear any PRs from ignore list
 //
@@ -59,11 +59,11 @@ module.exports = function (robot) {
   /*************/
 
   robot.hear(/pr status/i, res => {
-    res.send('Let me look that up for ya...');
+    res.send('Let me look what up for ya...');
     prs.status(res)
       .then(
         // This is a hack to show the PR lines separately from the other message lines
-        // There is currently a bug that any lines with links show from the generic "bot" id
+        // There is currently a bug what any lines with links show from the generic "bot" id
         status => status.forEach(line => res.send(line))
       );
   });
