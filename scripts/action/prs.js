@@ -1,16 +1,94 @@
 'use strict';
 
-const ACCESS_TOKEN = process.env.GITHUB_ACCESS_TOKEN;
-const PRS_URL = `https://api.github.com/repos/rackerlabs/billing-ui/pulls?access_token=${ACCESS_TOKEN}`;
+const ACCESS_TOKEN = `?access_token=${process.env.GITHUB_ACCESS_TOKEN}`;
+const PRS_URL = `https://api.github.com/repos/rackerlabs/billing-ui/pulls${ACCESS_TOKEN}`;
 
 const humanizeDuration = require('humanize-duration');
 const hdOptions = { largest: 1 };
+const rxComplete = /(- \[x])/g;
+const rxIncomplete = /(- \[ ])/g;
 
 var ignoredPRs = [];
 
 // Remove all PRs from ignore list
 function clearIgnores() {
   ignoredPRs = [];
+}
+
+// Given a Pull Request object, fetch the statuses object and update the PR with a status
+function fetchPRStatus(pr, res) {
+  return new Promise((resolve, reject) => {
+    res.http(pr.statuses_url + ACCESS_TOKEN)
+      .header('Accept', 'application/vnd.github.v3+json')
+      .get()(
+        (err, res, body) => {
+          if (err) {
+            reject(JSON.parse(err));
+          }
+
+          pr.status = JSON.parse(body)[0].state;
+          resolve(pr);
+        }
+      );
+  });
+}
+
+// Given GitHub Pull Request Page object, return human readable GitHub PR Status
+function formatOpenPRs(prs) {
+  if (!Array.isArray(prs)) {
+    return 'Whelp...I reckon something went wrong when I tried to fetch that *PR STATUS* for ya.';
+  }
+
+  let openPrs = [];
+
+  switch(true) {
+    case (prs.length === 0):
+      return [`Good news, yall! There aren't any open PRs right now!`];
+      break;
+    case (prs.length === 1):
+      openPrs.push('Looks like there is one lonesome open PR what needs some attention:');
+      break;
+    case (prs.length > 1):
+      openPrs.push(`Looks like there are ${prs.length} open PRs what need some attention:`);
+      break;
+  }
+
+  prs
+    .sort((pr_a, pr_b) => pr_a.created_at < pr_b.created_at ? -1 : 1)
+    .forEach(pr => openPrs.push(formatPR(pr)));
+
+  return openPrs;
+}
+
+// Given a single GitHub Pull Request object, return a formatted display string 
+function formatPR(pr) {
+  let number = `<${pr.html_url}|${pr.number}>`;
+  pr.status = pr.status
+    .replace('success', ':check:')
+    .replace('pending', ':large_blue_circle:')
+    .replace('failure', ':red_circle:')
+    .replace('error', ':red_circle:');
+
+  let status = `>>> ${pr.title} ${pr.status}\n`
+  status += `#${number} opened ${prDuration(pr)} by ${pr.user.login}${prCompletion(pr)}`;
+  return status;
+}
+
+function prCompletion(pr) {
+  let complete = (pr.body.match(rxComplete) || []).length;
+  let total = complete + (pr.body.match(rxIncomplete) || []).length;
+
+  if (total) {
+    return ` :checklist: ${complete} of ${total}`;
+  }
+
+  return '';
+}
+
+function prDuration(pr) {
+  let duration = humanizeDuration(new Date() - Date.parse(pr.created_at), hdOptions) + ' ago';
+  let hasDay = (duration.includes('day') ? '*' : '');
+  return ` _${hasDay}${duration}${hasDay}_`;
 }
 
 // Given a PR number, add that number to the list of PRs to ignore in the future
@@ -21,57 +99,35 @@ function ignore(pr) {
 }
 
 // Using the given response object, call GitHub API to get all pull requests
-function status(res) {
+function overview(robot) {
   return new Promise((resolve, reject) => {
-    res.http(PRS_URL)
+    robot.http(PRS_URL)
       .header('Accept', 'application/vnd.github.v3+json')
       .get()(
-        (err, res, body) => (!err ? resolve(formatOpenPRStatus(JSON.parse(body))) : reject(JSON.parse(err)))
+        (err, res, body) => {
+          let prs = JSON.parse(body);
+
+          if (err) {
+            reject(JSON.parse(err));
+          }
+
+          // Filter out ignored PRs
+          prs = prs.filter(pr => !ignoredPRs.includes(pr.number));
+
+          // Get statuses for each PR
+          let prPromises = prs.map(pr => fetchPRStatus(pr, robot));
+          Promise
+            .all(prPromises)
+            .then(values => {
+              resolve(formatOpenPRs(values))
+            });
+        }
       );
   });
-}
-
-// Given GitHub Pull Request Page object, return human readable GitHub PR Status
-function formatOpenPRStatus(prs) {
-  if (!Array.isArray(prs)) {
-    return 'Whelp...I reckon something went wrong when I tried to fetch that  *PR STATUS* for ya.';
-  }
-
-  // Filter out ignored PRs
-  prs = prs.filter(pr => !ignoredPRs.includes(pr.number))
-
-  let msg;
-
-  switch(true) {
-    case (prs.length === 0):
-      return `Good news, yall! There aren't any open PRs right now!\n`;
-      break;
-    case (prs.length === 1):
-      msg = 'Looks like there is one lonesome open PR what needs some attention:';
-      break;
-    case (prs.length > 1):
-      msg = `Looks like there are ${prs.length} open PRs what need some attention:`;
-      break;
-  }
-
-  let prStatus = prs
-    .sort((pr_a, pr_b) => pr_a.created_at < pr_b.created_at ? -1 : 1)
-    .reduce((agg, pr) => agg + formatPR(pr), '');
-
-  return [msg, prStatus];
-}
-
-// Given a single GitHub Pull Request object, return a formatted display string 
-function formatPR(pr) {
-  let duration = humanizeDuration(new Date() - Date.parse(pr.created_at), hdOptions) + ' ago';
-  if (duration.includes('day')) {
-    duration = `*${duration}!*`;
-  }
-  return `(<${pr.html_url}|${pr.number}>) ${pr.title}  --  _${duration}_\n`;
 }
 
 module.exports = {
   clearIgnores: clearIgnores,
   ignore: ignore,
-  status: status
+  overview: overview
 };
