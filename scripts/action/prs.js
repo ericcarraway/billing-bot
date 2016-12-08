@@ -7,9 +7,16 @@ const humanizeDuration = require('humanize-duration');
 const hdOptions = { largest: 1 };
 const rxComplete = /(- \[x])/g;
 const rxIncomplete = /(- \[ ])/g;
-const reviewers = ['ericcarraway', 'TheNando', 'S1ngS1ng', 'jonkruse00', 'arc6789'];
+const reviewers = ['TheNando', 'arc6789', 'ericcarraway', 'S1ngS1ng', 'jonkruse00'];
+const reviewerMap = {
+  'arc6789': '@anusuya',
+  'ericcarraway': '@ericcarraway',
+  'jonkruse00': '@jonjon',
+  'S1ngS1ng': '@sing2480',
+  'TheNando': '@nando'
+}
 
-var remainingReviewers = ['ericcarraway', 'TheNando', 'S1ngS1ng', 'jonkruse00', 'arc6789'];
+var remainingReviewers = [];
 var ignoredPRs = [];
 
 // Remove all PRs from ignore list
@@ -140,7 +147,7 @@ function pickReviewers(submitter) {
     let reviewer = remainingReviewers.shift();
 
     if (reviewer !== submitter) {
-      selected.push(reviewer);
+      selected.push(reviewerMap[reviewer]);
     } else {
       unshiftSubmitter = true;
     }
