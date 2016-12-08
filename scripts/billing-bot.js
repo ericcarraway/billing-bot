@@ -62,10 +62,19 @@ module.exports = function (robot) {
     res.send('Let me look that up for ya...');
     prs.overview(robot)
       .then(
-        // This is a hack to show the PR lines separately from the other message lines
-        // There is currently a bug that any lines with links show from the generic "bot" id
         overview => overview.forEach(line => res.send(line))
       );
+  });
+
+
+  /*******************/
+  /* Reviewer Picker */
+  /*******************/
+
+  robot.hear(/Pull request submitted by (\w+)/i, res => {
+    let submitter = res.match[1];
+    let folks = prs.pickReviewers(submitter);
+    res.send(`I reckon it's ${folks.join(' and ')}'s turn to review a PR.`);
   });
 
 }

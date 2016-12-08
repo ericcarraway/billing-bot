@@ -7,7 +7,9 @@ const humanizeDuration = require('humanize-duration');
 const hdOptions = { largest: 1 };
 const rxComplete = /(- \[x])/g;
 const rxIncomplete = /(- \[ ])/g;
+const reviewers = ['ericcarraway', 'TheNando', 'S1ngS1ng', 'jonkruse00', 'arc6789'];
 
+var remainingReviewers = ['ericcarraway', 'TheNando', 'S1ngS1ng', 'jonkruse00', 'arc6789'];
 var ignoredPRs = [];
 
 // Remove all PRs from ignore list
@@ -64,10 +66,10 @@ function formatOpenPRs(prs) {
 function formatPR(pr) {
   let number = `<${pr.html_url}|${pr.number}>`;
   pr.status = pr.status
-    .replace('success', ':check:')
-    .replace('pending', ':large_blue_circle:')
-    .replace('failure', ':red_circle:')
-    .replace('error', ':red_circle:');
+    .replace('success', ':gh_check:')
+    .replace('pending', ':gh_building:')
+    .replace('failure', ':gh_fail:')
+    .replace('error', ':gh_fail:');
 
   let status = `>>> ${pr.title} ${pr.status}\n`
   status += `#${number} opened ${prDuration(pr)} by ${pr.user.login}${prCompletion(pr)}`;
@@ -126,8 +128,34 @@ function overview(robot) {
   });
 }
 
+function pickReviewers(submitter) {
+  let selected = [];
+  let unshiftSubmitter = false;
+
+  if (remainingReviewers.length <= 3) {
+    remainingReviewers = remainingReviewers.concat(reviewers);
+  }
+
+  while (selected.length < 2) {
+    let reviewer = remainingReviewers.shift();
+
+    if (reviewer !== submitter) {
+      selected.push(reviewer);
+    } else {
+      unshiftSubmitter = true;
+    }
+  }
+
+  if (unshiftSubmitter) {
+    remainingReviewers.unshift(submitter);
+  }
+
+  return selected;
+}
+
 module.exports = {
   clearIgnores: clearIgnores,
   ignore: ignore,
-  overview: overview
+  overview: overview,
+  pickReviewers: pickReviewers
 };
