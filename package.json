@@ -1,9 +1,9 @@
 {
-  "name": "billing-bot",
+  "name": "coach_botovich",
   "version": "0.0.1",
   "private": true,
   "author": "Nando Pena <fernando.pena@rackspace.com>",
-  "description": "Helpful bot what does chores for the Encore Billing UI team.",
+  "description": "automates :allthethings: for the San Antonio team",
   "dependencies": {
     "hubot": "^2.19.0",
     "hubot-diagnostics": "0.0.1",
