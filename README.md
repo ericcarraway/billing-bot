@@ -1,4 +1,4 @@
-# coach_botovich
+# @coach_botovich
 
 ![coach_botovich](./img/avatar/coach_botovich.jpg "avatar")
 
