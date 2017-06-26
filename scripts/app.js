@@ -18,8 +18,10 @@
 
 module.exports = function (robot) {
     // our first command...
-    robot.hear(/hello coach/i, (res) => res.send('hello world'));
+    robot.hear(/hello coach/i,
+        (res) => res.send('hello world'));
 
     // listen for 'blocked|blocker', ping a project manager
-    robot.hear(/blocked|blocker/i, (res) => res.send('Did one of my players just get blocked? Should I put a PM in the game?'));
-}
+    robot.hear(/blocked|blocker/i,
+        (res) => res.send('Did one of my players just get blocked? Should I put a PM in the game?'));
+};
